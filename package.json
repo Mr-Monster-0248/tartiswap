@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "hardhat/"
+  ],
+  "volta": {
+    "node": "16.14.0"
+  }
+}
