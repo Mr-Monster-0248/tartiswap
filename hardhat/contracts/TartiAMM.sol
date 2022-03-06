@@ -3,9 +3,10 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./ITartiAMM.sol";
 
 /// Constant Product Automated Market Maker Liquidity Pool for TartiSwap DEX
-contract TartiAMM is Ownable {
+contract TartiAMM is ITartiAMM, Ownable {
     /// Whether the pair has already been initialized
     bool private hasBeenInitialized = false;
 
@@ -96,18 +97,8 @@ contract TartiAMM is Ownable {
         return true;
     }
 
-    // TODO : PUT THESE FUNCTIONS IN AN INTERFACE
-
-    function getToken1Liquidity() public view wasInitialized returns (uint256) {
-        return token1Liquidity;
-    }
-
-    function getToken2Liquidity() public view wasInitialized returns (uint256) {
-        return token2Liquidity;
-    }
-
     function getExpectedReturnFromToken1Trade(uint256 amount)
-        public
+        private
         view
         wasInitialized
         returns (uint256)
@@ -121,7 +112,7 @@ contract TartiAMM is Ownable {
     }
 
     function getExpectedReturnFromToken2Trade(uint256 amount)
-        public
+        private
         view
         wasInitialized
         returns (uint256)
@@ -133,8 +124,44 @@ contract TartiAMM is Ownable {
         return token1Liquidity - token1LiquidityToObtain;
     }
 
+    function getToken1Liquidity()
+        external
+        view
+        wasInitialized
+        returns (uint256)
+    {
+        return token1Liquidity;
+    }
+
+    function getToken2Liquidity()
+        external
+        view
+        wasInitialized
+        returns (uint256)
+    {
+        return token2Liquidity;
+    }
+
+    function simulateToken1Trade(uint256 amount)
+        external
+        view
+        wasInitialized
+        returns (uint256)
+    {
+        return getExpectedReturnFromToken1Trade(amount);
+    }
+
+    function simulateToken2Trade(uint256 amount)
+        external
+        view
+        wasInitialized
+        returns (uint256)
+    {
+        return getExpectedReturnFromToken2Trade(amount);
+    }
+
     function tradeToken1ForToken2(uint256 amount)
-        public
+        external
         wasInitialized
         returns (uint256)
     {
@@ -149,7 +176,7 @@ contract TartiAMM is Ownable {
     }
 
     function tradeToken2ForToken1(uint256 amount)
-        public
+        external
         wasInitialized
         returns (uint256)
     {
