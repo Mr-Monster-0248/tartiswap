@@ -4,6 +4,14 @@
     "apps/*",
     "hardhat/"
   ],
+  "scripts": {
+    "dev:faucet": "yarn workspace faucet dev",
+    "dev:dex": "yarn workspace dex dev",
+    "build:faucet": "yarn workspace faucet build",
+    "build:dex": "yarn workspace dex build",
+    "hardhat:node": "yarn workspace hardhat hardhat node",
+    "compile": "yarn workspace hardhat hardhat compile"
+  },
   "volta": {
     "node": "16.14.0"
   }
