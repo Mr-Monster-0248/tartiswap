@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-// eslint-disable-next-line node/no-missing-import
 import { Biscotte, TartiAMM, Tartine } from "../typechain";
+import { bigNumberWithDecimalsFrom } from "../utils/decimals";
 
 describe("TartiAMM", () => {
   let tartine: Tartine;
@@ -18,19 +18,19 @@ describe("TartiAMM", () => {
     await tartine.deployed();
     await biscotte.deployed();
 
-    await tartine.faucet(100);
-    await biscotte.faucet(100);
+    await tartine.faucet(bigNumberWithDecimalsFrom(100));
+    await biscotte.faucet(bigNumberWithDecimalsFrom(100));
 
     tartiAmm = await TartiAMMFactory.deploy(
       tartine.address,
       biscotte.address,
-      5,
-      5
+      bigNumberWithDecimalsFrom(5),
+      bigNumberWithDecimalsFrom(5)
     );
     await tartiAmm.deployed();
 
-    await tartine.approve(tartiAmm.address, 100);
-    await biscotte.approve(tartiAmm.address, 100);
+    await tartine.approve(tartiAmm.address, bigNumberWithDecimalsFrom(100));
+    await biscotte.approve(tartiAmm.address, bigNumberWithDecimalsFrom(100));
 
     await tartiAmm.initializePair();
   });
@@ -38,30 +38,46 @@ describe("TartiAMM", () => {
   it("deploys correctly", async () => {
     const [owner] = await ethers.getSigners();
 
-    expect(await tartine.balanceOf(owner.address)).to.equal(95);
-    expect(await biscotte.balanceOf(owner.address)).to.equal(95);
+    expect(await tartine.balanceOf(owner.address)).to.equal(
+      bigNumberWithDecimalsFrom(95)
+    );
+    expect(await biscotte.balanceOf(owner.address)).to.equal(
+      bigNumberWithDecimalsFrom(95)
+    );
 
-    expect(await tartine.balanceOf(tartiAmm.address)).to.equal(5);
-    expect(await biscotte.balanceOf(tartiAmm.address)).to.equal(5);
+    expect(await tartine.balanceOf(tartiAmm.address)).to.equal(
+      bigNumberWithDecimalsFrom(5)
+    );
+    expect(await biscotte.balanceOf(tartiAmm.address)).to.equal(
+      bigNumberWithDecimalsFrom(5)
+    );
   });
 
   it("computes correctly the constant sum", async () => {
     const bsctAmountFromTrade = await tartiAmm.getExpectedReturnFromToken1Trade(
-      20
+      bigNumberWithDecimalsFrom(20)
     );
 
-    expect(bsctAmountFromTrade).to.equal(4);
+    expect(bsctAmountFromTrade).to.equal(bigNumberWithDecimalsFrom(4));
   });
 
   it("receives the right BSCT amount when sending TRTN", async () => {
     const [owner] = await ethers.getSigners();
 
-    await tartiAmm.tradeToken1ForToken2(20); // Should trade 20 TRTN for 4 BSCT
+    await tartiAmm.tradeToken1ForToken2(bigNumberWithDecimalsFrom(20)); // Should trade 20 whole TRTN for 4 whole BSCT
 
-    expect(await tartine.balanceOf(owner.address)).to.equal(75);
-    expect(await biscotte.balanceOf(owner.address)).to.equal(99);
+    expect(await tartine.balanceOf(owner.address)).to.equal(
+      bigNumberWithDecimalsFrom(75)
+    );
+    expect(await biscotte.balanceOf(owner.address)).to.equal(
+      bigNumberWithDecimalsFrom(99)
+    );
 
-    expect(await tartine.balanceOf(tartiAmm.address)).to.equal(25);
-    expect(await biscotte.balanceOf(tartiAmm.address)).to.equal(1);
+    expect(await tartine.balanceOf(tartiAmm.address)).to.equal(
+      bigNumberWithDecimalsFrom(25)
+    );
+    expect(await biscotte.balanceOf(tartiAmm.address)).to.equal(
+      bigNumberWithDecimalsFrom(1)
+    );
   });
 });

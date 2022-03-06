@@ -2,34 +2,25 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
-import "hardhat/console.sol";
 
 /// Constant Product Automated Market Maker Liquidity Pool for TartiSwap DEX
 contract TartiAMM is Ownable {
-    // TODO: check if necessary
-    using SafeMath for uint256;
-
+    /// Whether the pair has already been initialized
     bool private hasBeenInitialized = false;
 
-    // Tokens from pair addresses
+    // Tokens forming the pair
     IERC20 private token1;
     IERC20 private token2;
-    address token1Address;
-    address token2Address;
 
     /// Constant Product Factor
-    uint256 kFactor;
+    uint256 private kFactor;
 
-    uint256 token1Liquidity;
-    uint256 token2Liquidity;
+    /// Token 1 Liquidity in the pool
+    uint256 private token1Liquidity;
 
-    modifier wasInitialized() {
-        require(hasBeenInitialized);
-        _;
-    }
+    /// Token 2 Liquidity in the pool
+    uint256 private token2Liquidity;
 
     constructor(
         address _token1Address,
@@ -40,18 +31,22 @@ contract TartiAMM is Ownable {
         require(_initialToken1Liquidity > 0);
         require(_initialToken2Liquidity > 0);
 
-        token1Address = _token1Address;
-        token2Address = _token2Address;
-
-        token1 = IERC20(token1Address);
-        token2 = IERC20(token2Address);
+        token1 = IERC20(_token1Address);
+        token2 = IERC20(_token2Address);
 
         token1Liquidity = _initialToken1Liquidity;
         token2Liquidity = _initialToken2Liquidity;
         kFactor = _initialToken1Liquidity * _initialToken2Liquidity;
     }
 
+    modifier wasInitialized() {
+        require(hasBeenInitialized);
+        _;
+    }
+
     function initializePair() public onlyOwner {
+        require(!hasBeenInitialized);
+
         require(
             token1.allowance(msg.sender, address(this)) >= token1Liquidity,
             "Token1 allowance not high enough (let's go to the moon)"
@@ -102,6 +97,14 @@ contract TartiAMM is Ownable {
     }
 
     // TODO : PUT THESE FUNCTIONS IN AN INTERFACE
+
+    function getToken1Liquidity() public view wasInitialized returns (uint256) {
+        return token1Liquidity;
+    }
+
+    function getToken2Liquidity() public view wasInitialized returns (uint256) {
+        return token2Liquidity;
+    }
 
     function getExpectedReturnFromToken1Trade(uint256 amount)
         public
@@ -159,6 +162,4 @@ contract TartiAMM is Ownable {
 
         return token1ToSend;
     }
-
-    // TODO: functions to check if trade is possible
 }
