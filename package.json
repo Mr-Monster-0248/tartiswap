@@ -10,6 +10,8 @@
     "build:faucet": "yarn workspace faucet build",
     "build:dex": "yarn workspace dex build",
     "hardhat:node": "yarn workspace hardhat hardhat node",
+    "hardhat:test": "yarn workspace hardhat hardhat test",
+    "hardhat:console": "yarn workspace hardhat hardhat console",
     "compile": "yarn workspace hardhat hardhat compile"
   },
   "volta": {
