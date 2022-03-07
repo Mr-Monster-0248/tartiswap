@@ -2,6 +2,14 @@
 pragma solidity ^0.8.4;
 
 interface ITartiAMM {
+    function getToken1Symbol() external view returns (string memory);
+
+    function getToken2Symbol() external view returns (string memory);
+
+    function getToken1Address() external view returns (address);
+
+    function getToken2Address() external view returns (address);
+
     /// Get the liquidity of first token in the pool
     function getToken1Liquidity() external view returns (uint256);
 

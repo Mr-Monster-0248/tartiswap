@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ITartiAMM.sol";
+import "./ITartiSwap.sol";
 
 /// Constant Product Automated Market Maker Liquidity Pool for TartiSwap DEX
 contract TartiAMM is ITartiAMM, Ownable {
@@ -11,8 +12,10 @@ contract TartiAMM is ITartiAMM, Ownable {
     bool private hasBeenInitialized = false;
 
     // Tokens forming the pair
-    IERC20 private token1;
-    IERC20 private token2;
+    IERC20Metadata private token1;
+    IERC20Metadata private token2;
+    address private token1Address;
+    address private token2Address;
 
     /// Constant Product Factor
     uint256 private kFactor;
@@ -32,8 +35,10 @@ contract TartiAMM is ITartiAMM, Ownable {
         require(_initialToken1Liquidity > 0);
         require(_initialToken2Liquidity > 0);
 
-        token1 = IERC20(_token1Address);
-        token2 = IERC20(_token2Address);
+        token1 = IERC20Metadata(_token1Address);
+        token2 = IERC20Metadata(_token2Address);
+        token1Address = _token1Address;
+        token2Address = _token2Address;
 
         token1Liquidity = _initialToken1Liquidity;
         token2Liquidity = _initialToken2Liquidity;
@@ -45,7 +50,7 @@ contract TartiAMM is ITartiAMM, Ownable {
         _;
     }
 
-    function initializePair() public onlyOwner {
+    function initializePair(address dexAddress) public onlyOwner {
         require(!hasBeenInitialized);
 
         require(
@@ -63,6 +68,9 @@ contract TartiAMM is ITartiAMM, Ownable {
         require(
             token2.transferFrom(msg.sender, address(this), token2Liquidity)
         );
+
+        // Register AMM to DEX
+        ITartiSwap(dexAddress).addPairListing();
 
         hasBeenInitialized = true;
     }
@@ -124,9 +132,26 @@ contract TartiAMM is ITartiAMM, Ownable {
         return token1Liquidity - token1LiquidityToObtain;
     }
 
+    function getToken1Symbol() external view override returns (string memory) {
+        return token1.symbol();
+    }
+
+    function getToken2Symbol() external view override returns (string memory) {
+        return token2.symbol();
+    }
+
+    function getToken1Address() external view override returns (address) {
+        return token1Address;
+    }
+
+    function getToken2Address() external view override returns (address) {
+        return token2Address;
+    }
+
     function getToken1Liquidity()
         external
         view
+        override
         wasInitialized
         returns (uint256)
     {
@@ -136,6 +161,7 @@ contract TartiAMM is ITartiAMM, Ownable {
     function getToken2Liquidity()
         external
         view
+        override
         wasInitialized
         returns (uint256)
     {
@@ -145,6 +171,7 @@ contract TartiAMM is ITartiAMM, Ownable {
     function simulateToken1Trade(uint256 amount)
         external
         view
+        override
         wasInitialized
         returns (uint256)
     {
@@ -154,6 +181,7 @@ contract TartiAMM is ITartiAMM, Ownable {
     function simulateToken2Trade(uint256 amount)
         external
         view
+        override
         wasInitialized
         returns (uint256)
     {
@@ -162,6 +190,7 @@ contract TartiAMM is ITartiAMM, Ownable {
 
     function tradeToken1ForToken2(uint256 amount)
         external
+        override
         wasInitialized
         returns (uint256)
     {
@@ -177,6 +206,7 @@ contract TartiAMM is ITartiAMM, Ownable {
 
     function tradeToken2ForToken1(uint256 amount)
         external
+        override
         wasInitialized
         returns (uint256)
     {

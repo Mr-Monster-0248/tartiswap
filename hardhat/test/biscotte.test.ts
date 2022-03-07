@@ -1,12 +1,21 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { Biscotte } from "../typechain";
 
-describe("Biscotte", function () {
-  it("should allow faucet calls if enabled", async () => {
+describe("Biscotte", () => {
+  let biscotte: Biscotte;
+
+  beforeEach(async () => {
     const biscotteFactory = await ethers.getContractFactory("Biscotte");
-    const biscotte = await biscotteFactory.deploy(true);
+    biscotte = await biscotteFactory.deploy(true);
     await biscotte.deployed();
+  });
 
+  it("has BSCT symbol", async () => {
+    expect(await biscotte.symbol()).to.equal("BSCT");
+  });
+
+  it("allows faucet calls if enabled", async () => {
     await biscotte.faucet(42);
 
     const [signer] = await ethers.getSigners();
@@ -16,11 +25,7 @@ describe("Biscotte", function () {
     expect(balance).to.equal(42);
   });
 
-  it("should block faucet calls if disabled", async () => {
-    const biscotteFactory = await ethers.getContractFactory("Biscotte");
-    const biscotte = await biscotteFactory.deploy(false);
-    await biscotte.deployed();
-
+  it("blocks faucet calls if disabled", async () => {
     expect(biscotte.faucet(42)).to.be.revertedWith("");
   });
 });

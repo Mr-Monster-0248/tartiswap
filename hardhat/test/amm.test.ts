@@ -9,9 +9,13 @@ describe("TartiAMM", () => {
   let tartiAmm: TartiAMM;
 
   beforeEach(async () => {
+    const TartiSwapFactory = await ethers.getContractFactory("TartiSwap");
     const TartineFactory = await ethers.getContractFactory("Tartine");
     const BiscotteFactory = await ethers.getContractFactory("Biscotte");
     const TartiAMMFactory = await ethers.getContractFactory("TartiAMM");
+
+    const tartiswap = await TartiSwapFactory.deploy();
+    await tartiswap.deployed();
 
     tartine = await TartineFactory.deploy(true);
     biscotte = await BiscotteFactory.deploy(true);
@@ -32,7 +36,7 @@ describe("TartiAMM", () => {
     await tartine.approve(tartiAmm.address, bigNumberWithDecimalsFrom(100));
     await biscotte.approve(tartiAmm.address, bigNumberWithDecimalsFrom(100));
 
-    await tartiAmm.initializePair();
+    await tartiAmm.initializePair(tartiswap.address);
   });
 
   it("deploys correctly", async () => {
@@ -54,7 +58,7 @@ describe("TartiAMM", () => {
   });
 
   it("computes correctly the constant sum", async () => {
-    const bsctAmountFromTrade = await tartiAmm.getExpectedReturnFromToken1Trade(
+    const bsctAmountFromTrade = await tartiAmm.simulateToken1Trade(
       bigNumberWithDecimalsFrom(20)
     );
 
