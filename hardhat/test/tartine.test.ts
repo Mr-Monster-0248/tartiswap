@@ -1,12 +1,21 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { Tartine } from "../typechain";
 
-describe("Tartine", function () {
-  it("should allow faucet calls if enabled", async () => {
+describe("Tartine", () => {
+  let tartine: Tartine;
+
+  beforeEach(async () => {
     const TartineFactory = await ethers.getContractFactory("Tartine");
-    const tartine = await TartineFactory.deploy(true);
+    tartine = await TartineFactory.deploy(true);
     await tartine.deployed();
+  });
 
+  it("has TRTN symbol", async () => {
+    expect(await tartine.symbol()).to.equal("TRTN");
+  });
+
+  it("allows faucet calls if enabled", async () => {
     await tartine.faucet(42);
 
     const [signer] = await ethers.getSigners();
@@ -16,11 +25,7 @@ describe("Tartine", function () {
     expect(balance).to.equal(42);
   });
 
-  it("should block faucet calls if disabled", async () => {
-    const TartineFactory = await ethers.getContractFactory("Tartine");
-    const tartine = await TartineFactory.deploy(false);
-    await tartine.deployed();
-
+  it("blocks faucet calls if disabled", async () => {
     expect(tartine.faucet(42)).to.be.revertedWith("");
   });
 });
