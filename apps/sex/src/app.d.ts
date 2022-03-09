@@ -17,3 +17,7 @@ declare namespace App {
 interface Window {
 	ethereum: any;
 }
+
+interface ImportMetaEnv {
+	VITE_TARTISWAP_ADDRESS: string;
+}
