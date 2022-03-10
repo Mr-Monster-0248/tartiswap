@@ -20,7 +20,6 @@ export function getTartiSwapContract(
 }
 
 export async function getPairs(contract: TartiSwap): Promise<TartiPairInfo[]> {
-	console.log(contract);
 	const nbPairs = (await contract.getNumberOfPairs()).toNumber();
 	const pairs: TartiPairInfo[] = [];
 
