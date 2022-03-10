@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AmountAndCurrencyPicker from '$lib/components/AmountAndCurrencyPicker.svelte';
 	import TokenApprovalButton from '$lib/components/TokenApprovalButton.svelte';
+	import TradeResultPreview from '$lib/components/TradeResultPreview.svelte';
 	import { getERC20ContractAt } from '$lib/contracts/erc20.contract';
 	import { getTartiAmmContractAt } from '$lib/contracts/tartiamm.contract';
 	import {
@@ -74,6 +75,10 @@
 
 	$: amountToTrade = amount ? ethers.utils.parseEther('' + amount) : 0;
 
+	$: tartiAmm = selectedPair
+		? getTartiAmmContractAt(selectedPair.address, $ethersStore.signer)
+		: null;
+
 	async function trade() {
 		if (!tokenToApprove) {
 			alert('No token selected.');
@@ -90,12 +95,10 @@
 			return;
 		}
 
-		const tartiPair = getTartiAmmContractAt(selectedPair.address, $ethersStore.signer);
-
 		if (selectedPair.token1Symbol === fromCurrency) {
-			await tartiPair.tradeToken1ForToken2(amountToTrade);
+			await tartiAmm.tradeToken1ForToken2(amountToTrade);
 		} else {
-			await tartiPair.tradeToken2ForToken1(amountToTrade);
+			await tartiAmm.tradeToken2ForToken1(amountToTrade);
 		}
 	}
 </script>
@@ -113,11 +116,15 @@
 		<p>
 			Maximum available: {ethers.utils.formatUnits(maxAvailableAmount, 18)}
 		</p>
+
 		<br />
-		<AmountAndCurrencyPicker
-			currencies={possibleToCurrencies}
+
+		<TradeResultPreview
+			{amount}
 			bind:currency={toCurrency}
-			bind:amount
+			amm={tartiAmm}
+			pair={selectedPair}
+			currencies={possibleToCurrencies}
 		/>
 
 		<br />
