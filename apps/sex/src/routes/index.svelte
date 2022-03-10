@@ -14,10 +14,15 @@
 	let toCurrency: string;
 	let amount: number;
 
-	$: if ($ethersStore.status === 'CONNECTED') {
+	$: if ($ethersStore.status === 'CONNECTED' && !tartiswap) {
 		tartiswap = getTartiSwapContract(import.meta.env.VITE_TARTISWAP_ADDRESS, $ethersStore.signer);
 		getPairs(tartiswap).then((pairs) => {
 			availablePairs = pairs;
+
+			if (pairs.length > 0) {
+				fromCurrency = pairs[0].token1Symbol;
+				toCurrency = pairs[0].token2Symbol;
+			}
 		});
 	}
 
@@ -34,6 +39,10 @@
 			})
 		)
 	);
+
+	$: if (!toCurrency || !possibleToCurrencies.includes(toCurrency)) {
+		toCurrency = possibleToCurrencies[0];
+	}
 
 	$: selectedPair = availablePairs.find(
 		(p) =>
