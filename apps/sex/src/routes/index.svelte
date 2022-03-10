@@ -42,19 +42,13 @@
 
 {#if $ethersStore.status === 'NOT_CONNECTED'}
 	<button on:click={$ethersStore.connect}>Connect</button>
+{:else if $ethersStore.status === 'CONNECTED'}
+	<div>
+		<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
+		<AmountAndCurrencyPicker
+			currencies={possibleToCurrencies}
+			bind:currency={toCurrency}
+			bind:amount
+		/>
+	</div>
 {/if}
-
-<div>
-	{#each availablePairs as pair}
-		<p>{pair.token1Symbol} / {pair.token2Symbol} : {pair.address}</p>
-	{/each}
-</div>
-
-<div>
-	<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
-	<AmountAndCurrencyPicker
-		currencies={possibleToCurrencies}
-		bind:currency={toCurrency}
-		bind:amount
-	/>
-</div>
