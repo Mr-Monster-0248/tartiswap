@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AmountAndCurrencyPicker from '$lib/components/AmountAndCurrencyPicker.svelte';
 	import TokenApprovalButton from '$lib/components/TokenApprovalButton.svelte';
+	import TradeButton from '$lib/components/TradeButton.svelte';
 	import TradeResultPreview from '$lib/components/TradeResultPreview.svelte';
 	import { getERC20ContractAt } from '$lib/contracts/erc20.contract';
 	import { getTartiAmmContractAt } from '$lib/contracts/tartiamm.contract';
@@ -132,5 +133,9 @@
 		<TokenApprovalButton bind:amount {selectedPair} {tokenToApprove} bind:allowanceGranted>
 			Approve {fromCurrency}
 		</TokenApprovalButton>
+
+		{#if allowanceGranted}
+			<TradeButton {amount} amm={tartiAmm} pair={selectedPair} tokenSymbol={fromCurrency} />
+		{/if}
 	</div>
 {/if}
