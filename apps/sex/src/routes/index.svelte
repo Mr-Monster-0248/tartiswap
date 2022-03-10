@@ -74,34 +74,9 @@
 		});
 	}
 
-	$: amountToTrade = amount ? ethers.utils.parseEther('' + amount) : 0;
-
 	$: tartiAmm = selectedPair
 		? getTartiAmmContractAt(selectedPair.address, $ethersStore.signer)
 		: null;
-
-	async function trade() {
-		if (!tokenToApprove) {
-			alert('No token selected.');
-			return;
-		}
-
-		const allowedAmount = await tokenToApprove.allowance(
-			$ethersStore.account,
-			selectedPair.address
-		);
-
-		if (allowedAmount < amountToTrade) {
-			alert('Allowance not high enough, please approve again');
-			return;
-		}
-
-		if (selectedPair.token1Symbol === fromCurrency) {
-			await tartiAmm.tradeToken1ForToken2(amountToTrade);
-		} else {
-			await tartiAmm.tradeToken2ForToken1(amountToTrade);
-		}
-	}
 </script>
 
 <svelte:head>

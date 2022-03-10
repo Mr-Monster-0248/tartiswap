@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { writable, get } from 'svelte/store';
+import { DateTime } from 'luxon';
 
 interface EthersStore {
 	status: 'CONNECTED' | 'NOT_CONNECTED' | 'INCOMPATIBLE' | 'UNINITIALIZED';
@@ -48,6 +49,16 @@ function createEthersStore() {
 				status: 'NOT_CONNECTED',
 				provider
 			}));
+
+			// Attempt automatic reconnection
+			const lastConnectionAtISO = localStorage.getItem('lastConnectionAt');
+			const shouldAttemptReconnection = lastConnectionAtISO
+				? DateTime.fromISO(lastConnectionAtISO).plus({ hours: 2 }) > DateTime.now()
+				: false;
+
+			if (shouldAttemptReconnection) {
+				connect();
+			}
 		}
 	}
 
@@ -90,6 +101,9 @@ function createEthersStore() {
 			account,
 			signer
 		}));
+
+		// Save last connection time
+		localStorage.setItem('lastConnectionAt', DateTime.now().toISO());
 	}
 
 	store.update((_) => ({
