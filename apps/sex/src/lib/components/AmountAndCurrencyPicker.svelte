@@ -1,9 +1,6 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
-	const dispatch = createEventDispatcher();
-
 	export let currencies: string[] = [];
-	export let amount: number;
+	export let amount: number = 0;
 	export let currency: string;
 </script>
 
