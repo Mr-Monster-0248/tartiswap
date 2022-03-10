@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let currencies: string[] = [];
-	export let amount: number = 0;
+	export let amount: number;
 	export let currency: string;
 </script>
 

@@ -1,18 +1,25 @@
 <script lang="ts">
 	import AmountAndCurrencyPicker from '$lib/components/AmountAndCurrencyPicker.svelte';
+	import TokenApprovalButton from '$lib/components/TokenApprovalButton.svelte';
+	import { getERC20ContractAt } from '$lib/contracts/erc20.contract';
+	import { getTartiAmmContractAt } from '$lib/contracts/tartiamm.contract';
 	import {
 		getPairs,
 		getTartiSwapContract,
 		type TartiPairInfo
 	} from '$lib/contracts/tartiswap.contract';
 	import { ethersStore } from '$lib/stores/ethers.store';
-	import type { TartiSwap } from 'hardhat/typechain';
+	import { ethers } from 'ethers';
+	import type { ERC20, TartiSwap } from 'hardhat/typechain';
 
 	let tartiswap: TartiSwap;
 	let availablePairs: TartiPairInfo[] = [];
-	let fromCurrency: string;
-	let toCurrency: string;
+	let fromCurrency: string = '';
+	let toCurrency: string = '';
 	let amount: number;
+	let maxAvailableAmount: ethers.BigNumber = ethers.BigNumber.from(0);
+	let allowanceGranted;
+	let tokenToApprove: ERC20;
 
 	$: if ($ethersStore.status === 'CONNECTED' && !tartiswap) {
 		tartiswap = getTartiSwapContract(import.meta.env.VITE_TARTISWAP_ADDRESS, $ethersStore.signer);
@@ -50,11 +57,47 @@
 			(p.token2Symbol === fromCurrency && p.token1Symbol === toCurrency)
 	);
 
-	$: tokenAddressToApprove = !selectedPair
-		? '0x0000000000000000000000000000000000000000'
-		: selectedPair.token1Symbol === fromCurrency
-		? selectedPair.token1Address
-		: selectedPair.token2Address;
+	$: if (selectedPair != null) {
+		const tokenAddress =
+			selectedPair.token1Symbol === fromCurrency
+				? selectedPair.token1Address
+				: selectedPair.token2Address;
+
+		tokenToApprove = getERC20ContractAt(tokenAddress, $ethersStore.signer);
+	}
+
+	$: if (tokenToApprove) {
+		tokenToApprove.balanceOf($ethersStore.account).then((balance) => {
+			maxAvailableAmount = balance;
+		});
+	}
+
+	$: amountToTrade = amount ? ethers.utils.parseEther('' + amount) : 0;
+
+	async function trade() {
+		if (!tokenToApprove) {
+			alert('No token selected.');
+			return;
+		}
+
+		const allowedAmount = await tokenToApprove.allowance(
+			$ethersStore.account,
+			selectedPair.address
+		);
+
+		if (allowedAmount < amountToTrade) {
+			alert('Allowance not high enough, please approve again');
+			return;
+		}
+
+		const tartiPair = getTartiAmmContractAt(selectedPair.address, $ethersStore.signer);
+
+		if (selectedPair.token1Symbol === fromCurrency) {
+			await tartiPair.tradeToken1ForToken2(amountToTrade);
+		} else {
+			await tartiPair.tradeToken2ForToken1(amountToTrade);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -64,29 +107,23 @@
 {#if $ethersStore.status === 'NOT_CONNECTED'}
 	<button on:click={$ethersStore.connect}>Connect</button>
 {:else if $ethersStore.status === 'CONNECTED'}
-	<h3>All tokens</h3>
-	<ul>
-		{#each Array.from(new Set(availablePairs
-					.flatMap( (p) => [{ symbol: p.token1Symbol, address: p.token1Address }, { symbol: p.token2Symbol, address: p.token2Address }] )
-					.map((p) => JSON.stringify(p)))).map((p) => JSON.parse(p)) as token}
-			<li>{token.symbol}: {token.address}</li>
-		{/each}
-	</ul>
-
 	<h2>Dex</h2>
 	<div>
 		<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
+		<p>
+			Maximum available: {ethers.utils.formatUnits(maxAvailableAmount, 18)}
+		</p>
+		<br />
 		<AmountAndCurrencyPicker
 			currencies={possibleToCurrencies}
 			bind:currency={toCurrency}
 			bind:amount
 		/>
-	</div>
 
-	{#if selectedPair}
-		<h5>AMM to approve:</h5>
-		<h4>{selectedPair.token1Symbol}/{selectedPair.token2Symbol}: {selectedPair.address}</h4>
-		<h5>ERC20 to approve AMM spendings for:</h5>
-		<h4>{fromCurrency}: {tokenAddressToApprove}</h4>
-	{/if}
+		<br />
+
+		<TokenApprovalButton bind:amount {selectedPair} {tokenToApprove} bind:allowanceGranted>
+			Approve {fromCurrency}
+		</TokenApprovalButton>
+	</div>
 {/if}
