@@ -4,7 +4,7 @@
 	export let currency: string;
 </script>
 
-<input type="number" placeholder="amount" bind:value={amount} />
+<input type="number" placeholder="amount" bind:value={amount} class="text-red-600" />
 <select bind:value={currency}>
 	{#each currencies as currency}
 		<option value={currency} label={currency} />
