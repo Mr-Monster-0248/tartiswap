@@ -10,15 +10,30 @@
 
 	let tartiswap: TartiSwap;
 	let availablePairs: TartiPairInfo[] = [];
+	let fromCurrency: string;
+	let toCurrency: string;
+	let amount: number;
 
-	$: {
-		if ($ethersStore.status === 'CONNECTED') {
-			tartiswap = getTartiSwapContract(import.meta.env.VITE_TARTISWAP_ADDRESS, $ethersStore.signer);
-			getPairs(tartiswap).then((pairs) => {
-				availablePairs = pairs;
-			});
-		}
+	$: if ($ethersStore.status === 'CONNECTED') {
+		tartiswap = getTartiSwapContract(import.meta.env.VITE_TARTISWAP_ADDRESS, $ethersStore.signer);
+		getPairs(tartiswap).then((pairs) => {
+			availablePairs = pairs;
+		});
 	}
+
+	$: currencies = Array.from(
+		new Set(availablePairs.flatMap((p) => [p.token1Symbol, p.token2Symbol]))
+	);
+
+	$: possibleToCurrencies = Array.from(
+		new Set(
+			availablePairs.flatMap((p) => {
+				if (p.token1Symbol === fromCurrency) return p.token2Symbol;
+				if (p.token2Symbol === fromCurrency) return p.token1Symbol;
+				return [];
+			})
+		)
+	);
 </script>
 
 <svelte:head>
@@ -36,10 +51,10 @@
 </div>
 
 <div>
+	<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
 	<AmountAndCurrencyPicker
-		currencies={['TRTN', 'BSCT', 'ETH']}
-		on:amount-change={(e) => console.log(e.detail)}
-		on:currency-change={(e) => console.log(e.detail)}
+		currencies={possibleToCurrencies}
+		bind:currency={toCurrency}
+		bind:amount
 	/>
-	<AmountAndCurrencyPicker />
 </div>

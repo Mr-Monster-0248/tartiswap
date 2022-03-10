@@ -3,14 +3,12 @@
 	const dispatch = createEventDispatcher();
 
 	export let currencies: string[] = [];
+	export let amount: number;
+	export let currency: string;
 </script>
 
-<input
-	type="number"
-	placeholder="amount"
-	on:change={(e) => dispatch('amount-change', e.currentTarget.value)}
-/>
-<select on:change={(e) => dispatch('currency-change', e.currentTarget.value)}>
+<input type="number" placeholder="amount" bind:value={amount} />
+<select bind:value={currency}>
 	{#each currencies as currency}
 		<option value={currency} label={currency} />
 	{/each}
