@@ -34,6 +34,18 @@
 			})
 		)
 	);
+
+	$: selectedPair = availablePairs.find(
+		(p) =>
+			(p.token1Symbol === fromCurrency && p.token2Symbol === toCurrency) ||
+			(p.token2Symbol === fromCurrency && p.token1Symbol === toCurrency)
+	);
+
+	$: tokenAddressToApprove = !selectedPair
+		? '0x0000000000000000000000000000000000000000'
+		: selectedPair.token1Symbol === fromCurrency
+		? selectedPair.token1Address
+		: selectedPair.token2Address;
 </script>
 
 <svelte:head>
@@ -43,6 +55,16 @@
 {#if $ethersStore.status === 'NOT_CONNECTED'}
 	<button on:click={$ethersStore.connect}>Connect</button>
 {:else if $ethersStore.status === 'CONNECTED'}
+	<h3>All tokens</h3>
+	<ul>
+		{#each Array.from(new Set(availablePairs
+					.flatMap( (p) => [{ symbol: p.token1Symbol, address: p.token1Address }, { symbol: p.token2Symbol, address: p.token2Address }] )
+					.map((p) => JSON.stringify(p)))).map((p) => JSON.parse(p)) as token}
+			<li>{token.symbol}: {token.address}</li>
+		{/each}
+	</ul>
+
+	<h2>Dex</h2>
 	<div>
 		<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
 		<AmountAndCurrencyPicker
@@ -51,4 +73,11 @@
 			bind:amount
 		/>
 	</div>
+
+	{#if selectedPair}
+		<h5>AMM to approve:</h5>
+		<h4>{selectedPair.token1Symbol}/{selectedPair.token2Symbol}: {selectedPair.address}</h4>
+		<h5>ERC20 to approve AMM spendings for:</h5>
+		<h4>{fromCurrency}: {tokenAddressToApprove}</h4>
+	{/if}
 {/if}
