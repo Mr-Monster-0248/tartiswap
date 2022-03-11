@@ -86,31 +86,32 @@
 {#if $ethersStore.status === 'NOT_CONNECTED'}
 	<button on:click={$ethersStore.connect}>Connect</button>
 {:else if $ethersStore.status === 'CONNECTED'}
-	<h2>Dex</h2>
-	<div>
-		<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
-		<p>
-			Maximum available: {ethers.utils.formatUnits(maxAvailableAmount, 18)}
-		</p>
+	<section class="flex flex-col h-screen justify-center align-center px-[25%] min-h-[33%]">
+		<div>
+			<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
+			<p>
+				Maximum available: {ethers.utils.formatUnits(maxAvailableAmount, 18)}
+			</p>
 
-		<br />
+			<br />
 
-		<TradeResultPreview
-			{amount}
-			bind:currency={toCurrency}
-			amm={tartiAmm}
-			pair={selectedPair}
-			currencies={possibleToCurrencies}
-		/>
+			<TradeResultPreview
+				{amount}
+				bind:currency={toCurrency}
+				amm={tartiAmm}
+				pair={selectedPair}
+				currencies={possibleToCurrencies}
+			/>
 
-		<br />
+			<br />
 
-		<TokenApprovalButton bind:amount {selectedPair} {tokenToApprove} bind:allowanceGranted>
-			Approve {fromCurrency}
-		</TokenApprovalButton>
+			<TokenApprovalButton bind:amount {selectedPair} {tokenToApprove} bind:allowanceGranted>
+				Approve {fromCurrency}
+			</TokenApprovalButton>
 
-		{#if allowanceGranted}
-			<TradeButton {amount} amm={tartiAmm} pair={selectedPair} tokenSymbol={fromCurrency} />
-		{/if}
-	</div>
+			{#if allowanceGranted}
+				<TradeButton {amount} amm={tartiAmm} pair={selectedPair} tokenSymbol={fromCurrency} />
+			{/if}
+		</div>
+	</section>
 {/if}
