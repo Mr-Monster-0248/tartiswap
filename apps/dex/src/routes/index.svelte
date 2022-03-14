@@ -79,13 +79,9 @@
 		: null;
 </script>
 
-<svelte:head>
-	<title>TartiSwap</title>
-</svelte:head>
+{@debug $ethersStore}
 
-{#if $ethersStore.status === 'NOT_CONNECTED'}
-	<button on:click={$ethersStore.connect}>Connect</button>
-{:else if $ethersStore.status === 'CONNECTED'}
+{#if $ethersStore.status === 'CONNECTED'}
 	<section class="flex flex-col h-screen justify-center align-center px-[25%] min-h-[33%]">
 		<div>
 			<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
