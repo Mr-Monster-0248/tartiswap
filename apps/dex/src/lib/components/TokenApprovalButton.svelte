@@ -36,17 +36,24 @@
 		if (allowanceGranted) return;
 
 		loading = true;
-		debugger;
-		await tokenToApprove.approve(
-			selectedPair.address,
-			computedAmount.mul(BigNumber.from(10).pow(6))
-		);
+		try {
+			await tokenToApprove.approve(selectedPair.address, computedAmount.sub(allowance));
+		} catch (err) {
+			console.error(err);
+		}
 		loading = false;
 	}
 </script>
 
-{#if computedAmount.gt(0) && !allowanceGranted}
-	<button on:click={approveTokenSpending} disabled={loading}>
+{#if computedAmount.gt(0)}
+	<button
+		class="basis-1/2 grow px-3 py-2 rounded-2xl 
+		{allowanceGranted || loading
+			? 'bg-violet-900 border border-violet-300 text-violet-200'
+			: 'bg-violet-300 hover:bg-violet-200'}"
+		on:click={approveTokenSpending}
+		disabled={loading || allowanceGranted}
+	>
 		<slot />
 	</button>
 {/if}

@@ -8,6 +8,7 @@
 	export let amm: TartiAMM;
 	export let pair: TartiPairInfo;
 	export let tokenSymbol: string;
+	export let disabled: boolean;
 
 	let loading = false;
 
@@ -15,17 +16,27 @@
 
 	async function trade() {
 		loading = true;
-		if (pair.token1Symbol === tokenSymbol) {
-			await amm.tradeToken1ForToken2(amountToTrade);
-		} else {
-			await amm.tradeToken2ForToken1(amountToTrade);
+		try {
+			if (pair.token1Symbol === tokenSymbol) {
+				await amm.tradeToken1ForToken2(amountToTrade);
+			} else {
+				await amm.tradeToken2ForToken1(amountToTrade);
+			}
+		} catch (err) {
+			console.error(err);
 		}
 		loading = false;
-		alert(`Traded ${amount} ${tokenSymbol}`);
 	}
 </script>
 
-<button on:click={trade} disabled={loading || amountToTrade.eq(0)}>
+<button
+	class="basis-1/2 grow px-3 py-2 rounded-2xl
+	{disabled || loading
+		? 'bg-violet-900 border border-violet-300 text-violet-200'
+		: 'bg-violet-300 hover:bg-violet-200'}"
+	on:click={trade}
+	disabled={loading || disabled}
+>
 	{#if !loading}
 		Trade {tokenSymbol}
 	{:else}

@@ -12,13 +12,13 @@
 	export let currency: string;
 </script>
 
-<div class="flex justify-between border-dutchwhite border-2 rounded-3xl p-4">
+<div class="flex justify-between border-violet-200 border-2 rounded-3xl p-4 bg-violet-600">
 	<input
 		type="number"
-		placeholder="amount"
+		placeholder="0.0"
 		min="0"
 		bind:value={amount}
-		class="w-full border-r-2 font-semibold border-dutchwhite focus:outline-none"
+		class="w-full border-r-2 font-semibold border-violet-200 focus:outline-none bg-violet-600"
 	/>
 
 	<div class="pl-4">
@@ -30,12 +30,12 @@
 				<div transition:fade class="">
 					<ListboxOptions
 						unmount={false}
-						class="absolute z-10 mt-1 bg-white shadow-lg max-h-56 rounded-md py-1 overflow-auto focus:outline-none"
+						class="absolute z-10 mt-1 bg-violet-200 shadow-lg max-h-56 rounded-md py-1 overflow-auto focus:outline-none"
 					>
 						{#each currencies as curr}
 							<ListboxOption
 								value={curr}
-								class="px-4 py-2 hover:bg-orchidpink active:bg-orchidpink focus:bg-orchidpink cursor-pointer"
+								class="px-4 py-2 hover:bg-violet-400 active:bg-violet-400 focus:bg-violet-400 cursor-pointer"
 							>
 								{curr}
 							</ListboxOption>
@@ -47,10 +47,10 @@
 	</div>
 </div>
 
-<style lang="scss">
+<!-- <style lang="scss">
 	svg {
 		polygon {
 			fill: red;
 		}
 	}
-</style>
+</style> -->

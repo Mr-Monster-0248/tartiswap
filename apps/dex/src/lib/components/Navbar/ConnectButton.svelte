@@ -11,8 +11,6 @@
 	}
 </script>
 
-{@debug $ethersStore}
-
 {#if $ethersStore.status !== 'CONNECTED'}
 	<button
 		class="p-2 px-3 rounded-2xl
