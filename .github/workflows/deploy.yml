@@ -1,0 +1,33 @@
+name: Deploy dex
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install packages
+        run: yarn
+
+      - name: Build hardhat
+        run: |
+          cd hardhat
+          yarn hardhat compile
+
+      - name: Build DEX
+        run: |
+          cd ../apps/dex
+          yarn build
+
+      - name: Deploy to vercel
+        uses: amondnet/vercel-action@v20 #deploy
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          vercel-org-id: ${{ secrets.VERCEL_ID}} #Required
+          vercel-project-id: ${{ secrets.PROJECT_ID}} #Required
+          working-directory: ./apps/dex
