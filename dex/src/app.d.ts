@@ -20,4 +20,7 @@ interface Window {
 
 interface ImportMetaEnv {
 	VITE_TARTISWAP_ADDRESS: string;
+	VITE_TARTINE_ADDRESS: string;
+	VITE_BISCOTTE_ADDRESS: string;
+	VITE_BAGUETTE_ADDRESS: string;
 }
