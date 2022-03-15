@@ -22,7 +22,6 @@ jobs:
           yarn hardhat compile
 
       - name: Build DEX
-        working-directory: ./apps/dex
         run: yarn build
 
       - uses: amondnet/vercel-action@v20
