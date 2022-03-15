@@ -10,6 +10,7 @@
 		getTartiSwapContract,
 		type TartiPairInfo
 	} from '$lib/contracts/tartiswap.contract';
+	import { fly } from 'svelte/transition';
 	import { ethersStore } from '$lib/stores/ethers.store';
 	import { ethers } from 'ethers';
 	import type { ERC20, TartiSwap } from 'hardhat/typechain';
@@ -79,38 +80,43 @@
 		: null;
 </script>
 
-<svelte:head>
-	<title>TartiSwap</title>
-</svelte:head>
+{#if $ethersStore.status === 'CONNECTED'}
+	<section class="flex flex-col pt-20 justify-center align-center px-[25%] min-h-[33%]">
+		<div class="flex flex-col">
+			<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
+			<p class="my-2 mx-5 text-violet-200">
+				Maximum available: {ethers.utils.formatUnits(maxAvailableAmount, 18)}
+			</p>
 
-{#if $ethersStore.status === 'NOT_CONNECTED'}
-	<button on:click={$ethersStore.connect}>Connect</button>
-{:else if $ethersStore.status === 'CONNECTED'}
-	<h2>Dex</h2>
-	<div>
-		<AmountAndCurrencyPicker {currencies} bind:currency={fromCurrency} bind:amount />
-		<p>
-			Maximum available: {ethers.utils.formatUnits(maxAvailableAmount, 18)}
-		</p>
+			<div class="border-b border-violet-200 my-3" />
 
-		<br />
+			<TradeResultPreview
+				{amount}
+				bind:currency={toCurrency}
+				amm={tartiAmm}
+				pair={selectedPair}
+				currencies={possibleToCurrencies}
+			/>
 
-		<TradeResultPreview
-			{amount}
-			bind:currency={toCurrency}
-			amm={tartiAmm}
-			pair={selectedPair}
-			currencies={possibleToCurrencies}
-		/>
+			<div class="flex flex-row mt-3 space-x-4">
+				<TokenApprovalButton bind:amount {selectedPair} {tokenToApprove} bind:allowanceGranted>
+					{#if allowanceGranted}
+						{fromCurrency} approved
+					{:else}
+						Approve {fromCurrency}
+					{/if}
+				</TokenApprovalButton>
 
-		<br />
-
-		<TokenApprovalButton bind:amount {selectedPair} {tokenToApprove} bind:allowanceGranted>
-			Approve {fromCurrency}
-		</TokenApprovalButton>
-
-		{#if allowanceGranted}
-			<TradeButton {amount} amm={tartiAmm} pair={selectedPair} tokenSymbol={fromCurrency} />
-		{/if}
-	</div>
+				{#if allowanceGranted}
+					<TradeButton
+						{amount}
+						amm={tartiAmm}
+						pair={selectedPair}
+						tokenSymbol={fromCurrency}
+						disabled={!allowanceGranted}
+					/>
+				{/if}
+			</div>
+		</div>
+	</section>
 {/if}
