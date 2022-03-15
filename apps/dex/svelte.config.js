@@ -1,7 +1,7 @@
-import adapter from '@sveltejs/adapter-auto';
 import preprocess from 'svelte-preprocess';
 import tailwind from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
+import vercel from '@sveltejs/adapter-vercel';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -14,7 +14,7 @@ const config = {
 	}),
 
 	kit: {
-		adapter: adapter(),
+		adapter: vercel(),
 
 		// Override http methods in the Todo forms
 		methodOverride: {
