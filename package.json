@@ -5,8 +5,8 @@
     "hardhat/"
   ],
   "scripts": {
-    "dev:dex": "yarn workspace dex dev",
-    "build:dex": "yarn workspace dex build"
+    "dev": "yarn workspace dex dev",
+    "build": "yarn workspace dex build"
   },
   "volta": {
     "node": "16.14.0"

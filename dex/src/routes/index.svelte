@@ -10,7 +10,6 @@
 		getTartiSwapContract,
 		type TartiPairInfo
 	} from '$lib/contracts/tartiswap.contract';
-	import { fly } from 'svelte/transition';
 	import { ethersStore } from '$lib/stores/ethers.store';
 	import { ethers } from 'ethers';
 	import type { ERC20, TartiSwap } from 'hardhat/typechain';
