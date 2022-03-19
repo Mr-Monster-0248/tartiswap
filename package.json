@@ -6,7 +6,8 @@
   ],
   "scripts": {
     "dev": "yarn workspace dex dev",
-    "build": "yarn workspace dex build"
+    "build": "yarn workspace dex build",
+    "preview": "yarn workspace dex preview"
   },
   "volta": {
     "node": "16.14.0"
